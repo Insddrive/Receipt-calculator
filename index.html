@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ਰਸੀਦ ਕੈਲਕੁਲੇਟਰ (ਡਾਰਕ ਮੋਡ)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* ਨੰਬਰ ਇਨਪੁਟਸ ਤੋਂ ਸਪਿਨ ਬਟਨ ਹਟਾਓ */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<!-- ਟਰੂਲੀ ਡਾਰਕ ਮੋਡ ਲਈ ਬੈਕਗ੍ਰਾਊਂਡ ਪੂਰਾ ਕਾਲਾ -->
+<body class="bg-black min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-md mx-auto"> 
+
+        <!-- 1. ਕੁੱਲ ਜੋੜ (Total Display) - ਸਿਖਰ 'ਤੇ -->
+        <!-- ਕੁੱਲ ਜੋੜ ਲਈ ਕਾਰਡ (ਗੂੜ੍ਹਾ ਸਲੇਟੀ) -->
+        <div class="bg-gray-900 rounded-xl shadow-2xl p-5 mb-6 text-center sticky top-4 z-10">
+            <h2 class="text-lg font-medium text-gray-400">ਕੁੱਲ ਜੋੜ (Total Amount)</h2>
+            <div id="total-display" class="text-4xl font-extrabold text-white mt-2 transition-all duration-300">₹ 0</div>
+        </div>
+
+        <!-- 2. ਕੈਲਕੁਲੇਟਰ ਫਾਰਮ (Calculator Form) -->
+        <div class="space-y-3" id="calculator-form"> 
+
+            <!-- ਕਾਰਡ 1: ₹ 50 (ਪੀਲਾ) -->
+            <div class="receipt-row bg-gray-900 rounded-lg shadow-lg overflow-hidden border-l-8 border-yellow-400" data-value="50">
+                <div class="p-4">
+                    <!-- ਹੈਡਰ: ਟਾਈਟਲ ਅਤੇ ਗਿਣਤੀ -->
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-yellow-400">₹ 50 ਵਾਲੀਆਂ ਰਸੀਦਾਂ</h3>
+                        <div class="text-gray-400 font-medium">
+                            ਕੁੱਲ ਰਸੀਦਾਂ: 
+                            <span class="count-display font-bold text-lg text-gray-100">0</span>
+                        </div>
+                    </div>
+                    <!-- ਇਨਪੁਟਸ -->
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <input type="number" class="start-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਸ਼ੁਰੂ ਨੰਬਰ 0">
+                        <input type="number" class="end-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਅੰਤ ਨੰਬਰ 0">
+                    </div>
+                    <!-- ਚੇਤਾਵਨੀ ਅਤੇ ਜੋੜ -->
+                    <div class="flex justify-between items-center h-10">
+                        <div class="warning-message text-red-500 font-bold text-sm"></div>
+                        <div class="text-gray-400 font-medium">
+                            ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ: 
+                            <!-- ਜੋੜ ਦਾ ਰੰਗ ਹੁਣ ਰਸੀਦ ਦੇ ਰੰਗ ਵਰਗਾ ਹੈ -->
+                            <span class="subtotal-display font-bold text-2xl text-yellow-400">₹ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ਕਾਰਡ 2: ₹ 100 (ਨੀਲਾ) -->
+            <div class="receipt-row bg-gray-900 rounded-lg shadow-lg overflow-hidden border-l-8 border-blue-400" data-value="100">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-blue-400">₹ 100 ਵਾਲੀਆਂ ਰਸੀਦਾਂ</h3>
+                        <div class="text-gray-400 font-medium">
+                            ਕੁੱਲ ਰਸੀਦਾਂ: 
+                            <span class="count-display font-bold text-lg text-gray-100">0</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <input type="number" class="start-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਸ਼ੁਰੂ ਨੰਬਰ 0">
+                        <input type="number" class="end-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਅੰਤ ਨੰਬਰ 0">
+                    </div>
+                    <div class="flex justify-between items-center h-10">
+                        <div class="warning-message text-red-500 font-bold text-sm"></div>
+                        <div class="text-gray-400 font-medium">
+                            ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ: 
+                            <span class="subtotal-display font-bold text-2xl text-blue-400">₹ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ਕਾਰਡ 3: ₹ 500 (ਸੰਤਰੀ) -->
+            <div class="receipt-row bg-gray-900 rounded-lg shadow-lg overflow-hidden border-l-8 border-orange-400" data-value="500">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-orange-400">₹ 500 ਵਾਲੀਆਂ ਰਸੀਦਾਂ</h3>
+                        <div class="text-gray-400 font-medium">
+                            ਕੁੱਲ ਰਸੀਦਾਂ: 
+                            <span class="count-display font-bold text-lg text-gray-100">0</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <input type="number" class="start-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਸ਼ੁਰੂ ਨੰਬਰ 0">
+                        <input type="number" class="end-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਅੰਤ ਨੰਬਰ 0">
+                    </div>
+                    <div class="flex justify-between items-center h-10">
+                        <div class="warning-message text-red-500 font-bold text-sm"></div>
+                        <div class="text-gray-400 font-medium">
+                            ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ: 
+                            <span class="subtotal-display font-bold text-2xl text-orange-400">₹ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ਕਾਰਡ 4: ₹ 1000 (ਹਲਕਾ ਨੀਲਾ) -->
+            <div class="receipt-row bg-gray-900 rounded-lg shadow-lg overflow-hidden border-l-8 border-blue-300" data-value="1000">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-blue-300">₹ 1000 ਵਾਲੀਆਂ ਰਸੀਦਾਂ</h3>
+                        <div class="text-gray-400 font-medium">
+                            ਕੁੱਲ ਰਸੀਦਾਂ: 
+                            <span class="count-display font-bold text-lg text-gray-100">0</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <input type="number" class="start-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਸ਼ੁਰੂ ਨੰਬਰ 0">
+                        <input type="number" class="end-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਅੰਤ ਨੰਬਰ 0">
+                    </div>
+                    <div class="flex justify-between items-center h-10">
+                        <div class="warning-message text-red-500 font-bold text-sm"></div>
+                        <div class="text-gray-400 font-medium">
+                            ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ: 
+                            <span class="subtotal-display font-bold text-2xl text-blue-300">₹ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ਕਾਰਡ 5: ₹ 5000 (ਹਰਾ) -->
+            <div class="receipt-row bg-gray-900 rounded-lg shadow-lg overflow-hidden border-l-8 border-green-400" data-value="5000">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-green-400">₹ 5000 ਵਾਲੀਆਂ ਰਸੀਦਾਂ</h3>
+                        <div class="text-gray-400 font-medium">
+                            ਕੁੱਲ ਰਸੀਦਾਂ: 
+                            <span class="count-display font-bold text-lg text-gray-100">0</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <input type="number" class="start-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਸ਼ੁਰੂ ਨੰਬਰ 0">
+                        <input type="number" class="end-input calculator-input w-full p-3 bg-gray-800 text-gray-100 border-2 border-gray-700 rounded-lg text-lg placeholder-gray-500" placeholder="ਅੰਤ ਨੰਬਰ 0">
+                    </div>
+                    <div class="flex justify-between items-center h-10">
+                        <div class="warning-message text-red-500 font-bold text-sm"></div>
+                        <div class="text-gray-400 font-medium">
+                            ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ: 
+                            <span class="subtotal-display font-bold text-2xl text-green-400">₹ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 3. ਰੀਸੈਟ ਬਟਨ (Reset Button) -->
+        <button id="reset-button" class="w-full mt-6 p-4 bg-red-600 text-white text-xl font-bold rounded-lg shadow-md hover:bg-red-700 active:bg-red-800 transition duration-300 ease-in-out">
+            ਸਭ ਰੀਸੈਟ ਕਰੋ (Reset All)
+        </button>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ਸਾਰੇ ਜ਼ਰੂਰੀ ਤੱਤਾਂ ਨੂੰ ਚੁਣੋ
+            const form = document.getElementById('calculator-form');
+            const totalDisplay = document.getElementById('total-display');
+            const allInputs = document.querySelectorAll('.calculator-input');
+            const receiptRows = document.querySelectorAll('.receipt-row');
+            const resetButton = document.getElementById('reset-button');
+
+            // ਗਣਨਾ ਕਰਨ ਲਈ ਫੰਕਸ਼ਨ
+            function calculateTotal() {
+                let grandTotal = 0; // ਕੁੱਲ ਜੋੜ ਲਈ ਵੇਰੀਏਬਲ
+
+                // ਹਰੇਕ ਰਸੀਦ ਕਤਾਰ 'ਤੇ ਲੂਪ ਚਲਾਓ
+                receiptRows.forEach(row => {
+                    const value = parseInt(row.dataset.value); // ਰਸੀਦ ਦਾ ਮੁੱਲ (50, 100, etc.)
+                    const startInput = row.querySelector('.start-input');
+                    const endInput = row.querySelector('.end-input');
+                    const subtotalDisplay = row.querySelector('.subtotal-display');
+                    const warningMessage = row.querySelector('.warning-message');
+                    const countDisplay = row.querySelector('.count-display');
+
+                    const start = parseInt(startInput.value) || 0; 
+                    const end = parseInt(endInput.value) || 0; 
+
+                    let count = 0;
+                    let subtotal = 0;
+
+                    // ਪੁਰਾਣੀ ਚੇਤਾਵਨੀ ਹਟਾਓ
+                    warningMessage.textContent = '';
+                    startInput.classList.remove('border-red-500', 'ring-red-500');
+                    endInput.classList.remove('border-red-500', 'ring-red-500');
+                    startInput.classList.add('border-gray-700'); // ਡਾਰਕ ਮੋਡ ਬਾਰਡਰ
+                    endInput.classList.add('border-gray-700'); // ਡਾਰਕ ਮੋਡ ਬਾਰਡਰ
+
+
+                    // ਗਣਨਾ ਤਾਂ ਹੀ ਕਰੋ ਜੇਕਰ ਦੋਵੇਂ ਨੰਬਰ ਦਾਖਲ ਕੀਤੇ ਗਏ ਹਨ
+                    if (start > 0 && end > 0) {
+                        
+                        // --- ਜਾਂਚ (Validation) ---
+                        if (start > end) {
+                            // ਜੇਕਰ ਸ਼ੁਰੂ ਨੰਬਰ ਵੱਡਾ ਹੈ
+                            warningMessage.textContent = 'ਸਹੀ ਨੰਬਰ ਭਰੋ';
+                            startInput.classList.add('border-red-500', 'ring-red-500');
+                            endInput.classList.add('border-red-500', 'ring-red-500');
+                            startInput.classList.remove('border-gray-700');
+                            endInput.classList.remove('border-gray-700');
+                            
+                            subtotal = 0; // ਗਲਤੀ ਹੋਣ 'ਤੇ ਜੋੜ 0 ਹੋਵੇਗਾ
+                            count = 0; // ਗਲਤੀ ਹੋਣ 'ਤੇ ਗਿਣਤੀ 0 ਹੋਵੇਗੀ
+                        } else {
+                            // ਜੇਕਰ ਸਭ ਠੀਕ ਹੈ (start <= end)
+                            count = end - start;
+                            subtotal = count * value;
+                        }
+                    }
+
+                    // ਗਿਣਤੀ (count) ਨੂੰ ਅੱਪਡੇਟ ਕਰੋ
+                    countDisplay.textContent = count;
+                    // ਇਸ ਕਤਾਰ ਦਾ ਜੋੜ ਦਿਖਾਓ
+                    subtotalDisplay.textContent = `₹ ${subtotal.toLocaleString('en-IN')}`;
+                    
+                    // ਇਸ ਕਤਾਰ ਦੇ ਜੋੜ ਨੂੰ ਕੁੱਲ ਜੋੜ ਵਿੱਚ ਸ਼ਾਮਲ ਕਰੋ
+                    grandTotal += subtotal;
+                });
+
+                // ਸਭ ਤੋਂ ਉੱਪਰ ਕੁੱਲ ਜੋੜ ਦਿਖਾਓ
+                totalDisplay.textContent = `₹ ${grandTotal.toLocaleString('en-IN')}`;
+            }
+
+            // ਫਾਰਮ ਨੂੰ ਰੀਸੈਟ ਕਰਨ ਲਈ ਫੰਕਸ਼ਨ
+            function resetForm() {
+                // ਸਾਰੇ ਇਨਪੁਟ ਖੇਤਰਾਂ ਨੂੰ ਖਾਲੀ ਕਰੋ
+                allInputs.forEach(input => {
+                    input.value = '';
+                    // ਗਲਤੀ ਸਟਾਈਲ ਵੀ ਹਟਾਓ
+                    input.classList.remove('border-red-500', 'ring-red-500');
+                    input.classList.add('border-gray-700');
+                });
+                // ਗਣਨਾ ਨੂੰ ਦੁਬਾਰਾ ਚਲਾਓ (ਜੋ ਸਭ ਕੁਝ 0 'ਤੇ ਸੈੱਟ ਕਰ ਦੇਵੇਗਾ)
+                calculateTotal();
+            }
+
+            // 4. ਇਵੈਂਟ ਲਿਸਨਰ (Event Listeners)
+
+            // ਜਦੋਂ ਵੀ ਕਿਸੇ ਇਨਪੁਟ ਵਿੱਚ ਕੁਝ ਟਾਈਪ ਕੀਤਾ ਜਾਂਦਾ ਹੈ, ਤਾਂ 'calculateTotal' ਫੰਕਸ਼ਨ ਨੂੰ ਕਾਲ ਕਰੋ
+            form.addEventListener('input', calculateTotal);
+
+            // ਜਦੋਂ ਰੀਸੈਟ ਬਟਨ 'ਤੇ ਕਲਿੱਕ ਕੀਤਾ ਜਾਂਦਾ ਹੈ, ਤਾਂ 'resetForm' ਫੰਕਸ਼ਨ ਨੂੰ ਕਾਲ ਕਰੋ
+            resetButton.addEventListener('click', resetForm);
+
+            // ਪੇਜ ਲੋਡ ਹੋਣ 'ਤੇ ਸ਼ੁਰੂਆਤੀ ਗਣਨਾ (ਸਭ 0 ਦਿਖਾਉਣ ਲਈ)
+            calculateTotal();
+        });
+    </script>
+
+</body>
+</html>
+
