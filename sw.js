@@ -1,15 +1,15 @@
-const CACHE_NAME = 'receipt-calc-v2'; // ਵਰਜਨ ਬਦਲ ਦਿੱਤਾ ਹੈ ਤਾਂ ਜੋ ਨਵਾਂ ਅਪਡੇਟ ਚੁੱਕ ਲਵੇ
+// Version v3 - Change this to force update
+const CACHE_NAME = 'receipt-calc-v3';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png', // ਇਹ ਫਾਈਲ ਫੋਲਡਰ ਵਿੱਚ ਹੋਣੀ ਬਹੁਤ ਜਰੂਰੀ ਹੈ
-  './icon-512.png'  // ਇਹ ਫਾਈਲ ਫੋਲਡਰ ਵਿੱਚ ਹੋਣੀ ਬਹੁਤ ਜਰੂਰੀ ਹੈ
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// Install Event
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // ਨਵਾਂ ਸਰਵਿਸ ਵਰਕਰ ਤੁਰੰਤ ਚਾਲੂ ਕਰਨ ਲਈ
+  self.skipWaiting(); // Force waiting service worker to become active
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -19,7 +19,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch Event
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
@@ -32,7 +31,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Activate Event (Cleanup old caches)
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
