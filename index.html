@@ -16,7 +16,7 @@
     <title>ਰਸੀਦ ਕੈਲਕੁਲੇਟਰ</title>
 
     <style>
-        /* --- CSS Styles (Offline Ready) --- */
+        /* --- CSS Styles --- */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
         input { user-select: text; }
         body {
@@ -27,11 +27,31 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 12px 8px 8px 8px; /* Safe area padding */
+            padding: 12px 8px 8px 8px;
         }
         .container { width: 100%; max-width: 450px; }
         
-        /* Sticky Header */
+        /* Install Button (Hidden by default, shown via JS) */
+        #install-container {
+            display: none; /* JS will show this if install is available */
+            margin-bottom: 12px;
+        }
+        #install-btn {
+            background-color: #2563eb; /* Blue color for distinction */
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        #install-btn:active { transform: scale(0.98); }
+
+        /* Header */
         .header {
             position: sticky; top: 4px; z-index: 50;
             background-color: rgba(17, 24, 39, 0.95);
@@ -49,9 +69,9 @@
         /* Cards */
         .card-list { display: flex; flex-direction: column; gap: 6px; }
         .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 8px; position: relative; overflow: hidden; }
-        
-        /* Bars & Colors */
         .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+        
+        /* Colors */
         .bg-green { background-color: #22c55e; } .text-green { color: #22c55e; }
         .bg-cyan { background-color: #22d3ee; } .text-cyan { color: #22d3ee; }
         .bg-orange { background-color: #f97316; } .text-orange { color: #f97316; }
@@ -73,6 +93,7 @@
             border-radius: 4px; border: 1px solid #374151;
             text-align: center; outline: none; transition: border-color 0.2s;
         }
+        /* Focus Colors */
         .card[data-value="5000"] input:focus { border-color: #22c55e; }
         .card[data-value="1000"] input:focus { border-color: #22d3ee; }
         .card[data-value="500"] input:focus { border-color: #f97316; }
@@ -81,7 +102,7 @@
         input.error { border-color: #dc2626 !important; }
         .warning-msg { color: #dc2626; font-size: 10px; font-weight: bold; padding-left: 8px; margin-top: 2px; min-height: 12px; }
 
-        /* Buttons */
+        /* Reset Button */
         .btn-reset {
             width: 100%; margin-top: 12px; padding: 10px; background-color: #dc2626; color: white;
             font-weight: bold; border: none; border-radius: 6px; font-size: 14px; text-transform: uppercase;
@@ -93,6 +114,14 @@
 </head>
 <body>
     <div class="container">
+        
+        <!-- Install Button Container -->
+        <div id="install-container">
+            <button id="install-btn">
+                <span>📲</span> ਐਪ ਇੰਸਟਾਲ ਕਰੋ (Install App)
+            </button>
+        </div>
+
         <!-- Header -->
         <div class="header">
             <div class="badge">Total 500: <span id="notes-500-display">0</span></div>
@@ -155,17 +184,47 @@
         <button id="reset-button" class="btn-reset">Reset</button>
     </div>
 
-    <!-- PWA Script: Registers the Service Worker -->
+    <!-- PWA Installation & Logic Script -->
     <script>
+        // 1. Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registered', reg))
-                    .catch(err => console.log('Service Worker registration failed', err));
+                    .then(reg => console.log('SW Registered!', reg))
+                    .catch(err => console.log('SW Failed:', err));
             });
         }
 
-        // Logic
+        // 2. Install Button Logic
+        let deferredPrompt;
+        const installContainer = document.getElementById('install-container');
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt fired');
+            // Prevent Chrome 67+ from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Show the install button
+            installContainer.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                // We've used the prompt, and can't use it again, throw it away
+                deferredPrompt = null;
+                // Hide the button
+                installContainer.style.display = 'none';
+            }
+        });
+
+        // 3. Calculator Logic
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('calculator-form');
             const totalDisplay = document.getElementById('total-display');
@@ -219,4 +278,5 @@
     </script>
 </body>
 </html>
+
 
