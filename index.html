@@ -4,22 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- PWA / Full Screen Settings -->
-    <meta name="mobile-web-app-capable" content="yes">
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-title" content="Receipts">
+    
+    <!-- Link to Manifest File -->
+    <link rel="manifest" href="manifest.json">
+
     <title>ਰਸੀਦ ਕੈਲਕੁਲੇਟਰ</title>
 
     <style>
-        /* --- Basic Reset & System Fonts (No Internet Needed) --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        /* --- CSS Styles (Offline Ready) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+        input { user-select: text; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #000000;
@@ -28,308 +27,145 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 8px;
+            padding: 12px 8px 8px 8px; /* Safe area padding */
         }
-
-        /* --- Utilities --- */
-        .container {
-            width: 100%;
-            max-width: 450px;
-        }
-
-        .hidden { display: none; }
+        .container { width: 100%; max-width: 450px; }
         
         /* Sticky Header */
         .header {
-            position: sticky;
-            top: 4px;
-            z-index: 50;
+            position: sticky; top: 4px; z-index: 50;
             background-color: rgba(17, 24, 39, 0.95);
             backdrop-filter: blur(4px);
             border-bottom: 1px solid #374151;
             border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 10px 12px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+        .badge { font-size: 12px; background-color: #1f2937; padding: 4px 8px; border-radius: 4px; border: 1px solid #4b5563; color: white; font-weight: 500; }
+        .badge span { color: #facc15; font-weight: bold; }
+        .total-amount { font-size: 20px; font-weight: 800; color: white; letter-spacing: 0.025em; }
 
-        .badge {
-            font-size: 12px;
-            background-color: #1f2937;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #4b5563;
-            color: white;
-            font-weight: 500;
-        }
-
-        .badge span {
-            color: #facc15; /* Yellow */
-            font-weight: bold;
-        }
-
-        .total-amount {
-            font-size: 20px;
-            font-weight: 800;
-            color: white;
-            letter-spacing: 0.025em;
-        }
-
-        /* Receipt Row Cards */
-        .card-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .card {
-            background-color: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 6px;
-            padding: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Color Bars */
-        .bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-        .bg-green { background-color: #22c55e; }
-        .bg-cyan { background-color: #22d3ee; }
-        .bg-orange { background-color: #f97316; }
-        .bg-blue { background-color: #3b82f6; }
-        .bg-yellow { background-color: #eab308; }
-
-        /* Text Colors */
-        .text-green { color: #22c55e; }
-        .text-cyan { color: #22d3ee; }
-        .text-orange { color: #f97316; }
-        .text-blue { color: #3b82f6; }
-        .text-yellow { color: #eab308; }
-
-        /* Row Layouts */
-        .row-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            padding-left: 8px;
-        }
-
-        .label-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .label-main {
-            font-size: 16px;
-            font-weight: 800;
-        }
-
-        .count-badge {
-            font-size: 10px;
-            font-weight: bold;
-            color: white;
-            background-color: #374151;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .subtotal {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .row-inputs {
-            display: flex;
-            gap: 8px;
-            padding-left: 8px;
-        }
-
-        input[type="number"] {
-            width: 50%;
-            background-color: #000000;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #374151;
-            text-align: center;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input[type="number"]:focus {
-            border-color: currentColor;
-        }
+        /* Cards */
+        .card-list { display: flex; flex-direction: column; gap: 6px; }
+        .card { background-color: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 8px; position: relative; overflow: hidden; }
         
-        /* Specific focus colors */
+        /* Bars & Colors */
+        .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+        .bg-green { background-color: #22c55e; } .text-green { color: #22c55e; }
+        .bg-cyan { background-color: #22d3ee; } .text-cyan { color: #22d3ee; }
+        .bg-orange { background-color: #f97316; } .text-orange { color: #f97316; }
+        .bg-blue { background-color: #3b82f6; } .text-blue { color: #3b82f6; }
+        .bg-yellow { background-color: #eab308; } .text-yellow { color: #eab308; }
+
+        /* Row Layout */
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-left: 8px; }
+        .label-group { display: flex; align-items: center; gap: 8px; }
+        .label-main { font-size: 16px; font-weight: 800; }
+        .count-badge { font-size: 10px; font-weight: bold; color: white; background-color: #374151; padding: 2px 6px; border-radius: 4px; }
+        .subtotal { font-size: 16px; font-weight: 700; }
+        
+        /* Inputs */
+        .row-inputs { display: flex; gap: 8px; padding-left: 8px; }
+        input[type="number"] {
+            width: 50%; background-color: #000000; color: white;
+            font-size: 16px; font-weight: 700; padding: 8px;
+            border-radius: 4px; border: 1px solid #374151;
+            text-align: center; outline: none; transition: border-color 0.2s;
+        }
         .card[data-value="5000"] input:focus { border-color: #22c55e; }
         .card[data-value="1000"] input:focus { border-color: #22d3ee; }
         .card[data-value="500"] input:focus { border-color: #f97316; }
         .card[data-value="100"] input:focus { border-color: #3b82f6; }
         .card[data-value="50"] input:focus { border-color: #eab308; }
+        input.error { border-color: #dc2626 !important; }
+        .warning-msg { color: #dc2626; font-size: 10px; font-weight: bold; padding-left: 8px; margin-top: 2px; min-height: 12px; }
 
-        /* Input Error State */
-        input.error {
-            border-color: #dc2626 !important;
-        }
-
-        .warning-msg {
-            color: #dc2626;
-            font-size: 10px;
-            font-weight: bold;
-            padding-left: 8px;
-            margin-top: 2px;
-            min-height: 12px; /* Holds space */
-        }
-
-        /* Reset Button */
+        /* Buttons */
         .btn-reset {
-            width: 100%;
-            margin-top: 12px;
-            padding: 10px;
-            background-color: #dc2626;
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            width: 100%; margin-top: 12px; padding: 10px; background-color: #dc2626; color: white;
+            font-weight: bold; border: none; border-radius: 6px; font-size: 14px; text-transform: uppercase;
+            cursor: pointer; margin-bottom: 30px;
         }
-        .btn-reset:active {
-            background-color: #b91c1c;
-            transform: translateY(1px);
-        }
-
-        /* Hide Number Spinners */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        .btn-reset:active { background-color: #b91c1c; transform: translateY(1px); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body>
-
     <div class="container">
-
         <!-- Header -->
         <div class="header">
-            <div class="badge">
-                Total 500: <span id="notes-500-display">0</span>
-            </div>
+            <div class="badge">Total 500: <span id="notes-500-display">0</span></div>
             <div id="total-display" class="total-amount">₹ 0</div>
         </div>
 
         <!-- Cards List -->
         <div class="card-list" id="calculator-form">
-
-            <!-- 5000 (Updated Label) -->
+            <!-- 5000 -->
             <div class="card" data-value="5000">
                 <div class="bar bg-green"></div>
                 <div class="row-top">
-                    <div class="label-group">
-                        <span class="label-main text-green">₹ 5,000</span>
-                        <span class="count-badge">x <span class="count-display">0</span></span>
-                    </div>
+                    <div class="label-group"><span class="label-main text-green">₹ 5,000</span><span class="count-badge">x <span class="count-display">0</span></span></div>
                     <span class="subtotal-display subtotal text-green">₹ 0</span>
                 </div>
-                <div class="row-inputs">
-                    <input type="number" class="start-input" placeholder="Start">
-                    <input type="number" class="end-input" placeholder="End">
-                </div>
+                <div class="row-inputs"><input type="number" class="start-input" placeholder="Start"><input type="number" class="end-input" placeholder="End"></div>
                 <div class="warning-msg"></div>
             </div>
-
-            <!-- 1000 (Updated Label) -->
+            <!-- 1000 -->
             <div class="card" data-value="1000">
                 <div class="bar bg-cyan"></div>
                 <div class="row-top">
-                    <div class="label-group">
-                        <span class="label-main text-cyan">₹ 1,000</span>
-                        <span class="count-badge">x <span class="count-display">0</span></span>
-                    </div>
+                    <div class="label-group"><span class="label-main text-cyan">₹ 1,000</span><span class="count-badge">x <span class="count-display">0</span></span></div>
                     <span class="subtotal-display subtotal text-cyan">₹ 0</span>
                 </div>
-                <div class="row-inputs">
-                    <input type="number" class="start-input" placeholder="Start">
-                    <input type="number" class="end-input" placeholder="End">
-                </div>
+                <div class="row-inputs"><input type="number" class="start-input" placeholder="Start"><input type="number" class="end-input" placeholder="End"></div>
                 <div class="warning-msg"></div>
             </div>
-
             <!-- 500 -->
             <div class="card" data-value="500">
                 <div class="bar bg-orange"></div>
                 <div class="row-top">
-                    <div class="label-group">
-                        <span class="label-main text-orange">₹ 500</span>
-                        <span class="count-badge">x <span class="count-display">0</span></span>
-                    </div>
+                    <div class="label-group"><span class="label-main text-orange">₹ 500</span><span class="count-badge">x <span class="count-display">0</span></span></div>
                     <span class="subtotal-display subtotal text-orange">₹ 0</span>
                 </div>
-                <div class="row-inputs">
-                    <input type="number" class="start-input" placeholder="Start">
-                    <input type="number" class="end-input" placeholder="End">
-                </div>
+                <div class="row-inputs"><input type="number" class="start-input" placeholder="Start"><input type="number" class="end-input" placeholder="End"></div>
                 <div class="warning-msg"></div>
             </div>
-
             <!-- 100 -->
             <div class="card" data-value="100">
                 <div class="bar bg-blue"></div>
                 <div class="row-top">
-                    <div class="label-group">
-                        <span class="label-main text-blue">₹ 100</span>
-                        <span class="count-badge">x <span class="count-display">0</span></span>
-                    </div>
+                    <div class="label-group"><span class="label-main text-blue">₹ 100</span><span class="count-badge">x <span class="count-display">0</span></span></div>
                     <span class="subtotal-display subtotal text-blue">₹ 0</span>
                 </div>
-                <div class="row-inputs">
-                    <input type="number" class="start-input" placeholder="Start">
-                    <input type="number" class="end-input" placeholder="End">
-                </div>
+                <div class="row-inputs"><input type="number" class="start-input" placeholder="Start"><input type="number" class="end-input" placeholder="End"></div>
                 <div class="warning-msg"></div>
             </div>
-
             <!-- 50 -->
             <div class="card" data-value="50">
                 <div class="bar bg-yellow"></div>
                 <div class="row-top">
-                    <div class="label-group">
-                        <span class="label-main text-yellow">₹ 50</span>
-                        <span class="count-badge">x <span class="count-display">0</span></span>
-                    </div>
+                    <div class="label-group"><span class="label-main text-yellow">₹ 50</span><span class="count-badge">x <span class="count-display">0</span></span></div>
                     <span class="subtotal-display subtotal text-yellow">₹ 0</span>
                 </div>
-                <div class="row-inputs">
-                    <input type="number" class="start-input" placeholder="Start">
-                    <input type="number" class="end-input" placeholder="End">
-                </div>
+                <div class="row-inputs"><input type="number" class="start-input" placeholder="Start"><input type="number" class="end-input" placeholder="End"></div>
                 <div class="warning-msg"></div>
             </div>
-
         </div>
-
         <button id="reset-button" class="btn-reset">Reset</button>
-
     </div>
 
+    <!-- PWA Script: Registers the Service Worker -->
     <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+
+        // Logic
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('calculator-form');
             const totalDisplay = document.getElementById('total-display');
@@ -340,7 +176,6 @@
 
             function calculateTotal() {
                 let grandTotal = 0;
-
                 cards.forEach(card => {
                     const value = parseInt(card.dataset.value);
                     const startInput = card.querySelector('.start-input');
@@ -348,56 +183,37 @@
                     const subtotalDisplay = card.querySelector('.subtotal-display');
                     const warningMessage = card.querySelector('.warning-msg');
                     const countDisplay = card.querySelector('.count-display');
-
                     const start = parseInt(startInput.value) || 0; 
                     const end = parseInt(endInput.value) || 0; 
 
-                    let count = 0;
-                    let subtotal = 0;
-
-                    // Reset styling
+                    let count = 0; let subtotal = 0;
                     warningMessage.textContent = '';
-                    startInput.classList.remove('error');
-                    endInput.classList.remove('error');
+                    startInput.classList.remove('error'); endInput.classList.remove('error');
 
                     if (start > 0 && end > 0) {
                         if (start > end) {
-                            warningMessage.textContent = 'ਅੰਤ ਨੰਬਰ ਛੋਟਾ ਹੈ';
-                            startInput.classList.add('error');
-                            endInput.classList.add('error');
+                            warningMessage.textContent = 'ਚੈੱਕ ਕਰੋ';
+                            startInput.classList.add('error'); endInput.classList.add('error');
                         } else {
-                            count = end - start;
-                            subtotal = count * value;
+                            count = end - start; subtotal = count * value;
                         }
                     }
-
                     countDisplay.textContent = count;
                     subtotalDisplay.textContent = `₹ ${subtotal.toLocaleString('en-IN')}`;
-                    
                     grandTotal += subtotal;
                 });
-
                 totalDisplay.textContent = `₹ ${grandTotal.toLocaleString('en-IN')}`;
-                
-                // Calculate Total 500s
                 const notes500 = grandTotal / 500;
-                // Check if it's a whole number, if not show decimals
                 notes500Display.textContent = Number.isInteger(notes500) ? notes500 : notes500.toFixed(2);
             }
 
             function resetForm() {
-                allInputs.forEach(input => {
-                    input.value = '';
-                    input.classList.remove('error');
-                });
+                allInputs.forEach(input => { input.value = ''; input.classList.remove('error'); });
                 calculateTotal();
             }
 
-            // Real-time calculation on input
             form.addEventListener('input', calculateTotal);
             resetButton.addEventListener('click', resetForm);
-
-            // Initial run
             calculateTotal();
         });
     </script>
